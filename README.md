@@ -12,4 +12,4 @@ git clone https://github.com/stay-miku/OpenAI_Chat3.5-python-server.git
 
 AI.py内的AI类是一个对官方库的基本封装(把我认为有用的功能放进去了)
 
-net.py是用socket自行实现的客户端与服务端通信(可以根据这个自己设计客户端),该端为服务端
+net.py是用socket自行实现的客户端与服务端通信(可以根据这个自己设计客户端,但是并没有考虑非法连接,暴露端口可能就寄了),该端为服务端
