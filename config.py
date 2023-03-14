@@ -3,8 +3,8 @@
 
 # openai配置
 
-# openai的api key
-api_key = "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"
+# openai的api key,使用前必须修改
+api_key = "API_KEY"
 
 # 选择的模型
 select_model = "gpt-3.5-turbo-0301"
