@@ -8,4 +8,8 @@ git clone https://github.com/stay-miku/OpenAI_Chat3.5-python-server.git
 
 相关配置在config.py里,可自行修改(使用前必须修改里面的api_key)
 
-(不怎么会用github~,有啥问题请见谅)
+(github新手,有啥问题请见谅~)
+
+AI.py内的AI类是一个对官方库的基本封装(把我认为有用的功能放进去了)
+
+net.py是用socket自行实现的客户端与服务端通信(可以根据这个自己设计客户端),该端为服务端
