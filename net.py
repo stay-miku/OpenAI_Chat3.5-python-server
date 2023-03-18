@@ -160,10 +160,10 @@ def type_get_temperature(server: socket.socket, index: int):   # ok
 def type_configure_immerse(server: socket.socket):
     length = len(immerse.immerse)
     send_int(server, length)
-    for i in immerse.immerse:
-        send_string(server, i["user"])
-        send_string(server, i["target"])
-        send_string(server, i["group"])
+    for key in immerse.immerse.keys():
+        send_string(server, immerse.immerse[key]["user"])
+        send_string(server, immerse.immerse[key]["target"])
+        send_string(server, immerse.immerse[key]["group"])
 
 
 def type_set_immerse(server: socket.socket, user: str):
@@ -181,7 +181,7 @@ def type_quit_immerse(server: socket.socket, user: str):
         send_false(server)
 
 
-# 19个类别,打字都打麻了
+# 操作类别
 type_name = ["create", "clear", "set_prompt", "set_default_prompt", "set_temperature", "get_prompt", "listen",
              "revoke", "speak", "chat", "set_speak", "set_chat", "re_chat", "set_name", "get_name", "set_owner_name",
              "get_owner_name", "get_used_token", "get_temperature", "configure_immerse", "set_immerse", "quit_immerse"]
