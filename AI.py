@@ -28,7 +28,7 @@ class AI:
 
     # 在等待ai回复时所有操作(除了get型)都会被锁住(防止奇怪的问题出现)
     def pre_operable(self):
-        while not self.operable:
+        while self.operable:
             time.sleep(0.05)
 
     def get_name(self) -> str:                   # client发送user  server发送name     所有返回变量的协议都可能因user错误而返回false
@@ -55,7 +55,7 @@ class AI:
 
     # 不填及使用默认值,prompt为默认值时name不可为默认值,反之亦然                   (直接客户端给限制死了,能填的就只有name和owner_name)
     def __init__(self, user="", name="", owner_name="", prompt="", temperature=default_temperature):  # create  client依次发送user name owner_name(懒~) 空参数发空字符串  server返回是否成功
-        self.operable = True
+        self.operable = False
         if user == "":  # 代表空的构造函数,用于从文件恢复对象
             return
 
@@ -73,7 +73,6 @@ class AI:
 
     # 清除超过长度限制的对话
     def clear_extre_message(self):
-        self.pre_operable()
         while True:
             if len(self.messages) - 1 <= config.max_message_length:
                 break
@@ -135,7 +134,7 @@ class AI:
     # 让ai说话  注意返回值是否error  一个速度限制error 一个网络错误error
     def speak(self) -> str:                                                                           # speak  client发送user  server返回answer  error也会返回,需client自行判断error
         self.pre_operable()
-        self.operable = False
+        self.operable = True
         try:
             resp = openai.ChatCompletion.create(model=select_model, messages=self.messages,
                                                 temperature=self.temperature)
@@ -150,7 +149,7 @@ class AI:
         self.used_tokens = self.used_tokens + resp["usage"]["total_tokens"]
         self.messages.append({"role": "assistant", "content": message})
         self.clear_extre_message()
-        self.operable = True
+        self.operable = False
         return message
 
     # 输入问题,给出答案   error同speak
