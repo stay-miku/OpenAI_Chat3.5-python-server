@@ -49,6 +49,8 @@ def save_AI():
 def read_AI():
     files = os.listdir(config.data_path)
     for file in files:
+        if file == "immerse.json":
+            continue
         f = open(config.data_path + "/" + file, "r", encoding=config.coding_format)
         data_str = f.read()
         data = json.loads(data_str)
