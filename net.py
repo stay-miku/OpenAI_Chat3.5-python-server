@@ -170,6 +170,7 @@ def type_set_immerse(server: socket.socket, user: str):
     target = get_string(server)
     group = get_string(server)
     immerse.set_immerse(user, target, group)
+    send_true(server)
 
 
 # 19个类别,打字都打麻了
