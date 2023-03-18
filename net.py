@@ -173,10 +173,18 @@ def type_set_immerse(server: socket.socket, user: str):
     send_true(server)
 
 
+def type_quit_immerse(server: socket.socket, user: str):
+    if user in immerse.immerse:
+        immerse.immerse.pop(user)
+        send_true(server)
+    else:
+        send_false(server)
+
+
 # 19个类别,打字都打麻了
 type_name = ["create", "clear", "set_prompt", "set_default_prompt", "set_temperature", "get_prompt", "listen",
              "revoke", "speak", "chat", "set_speak", "set_chat", "re_chat", "set_name", "get_name", "set_owner_name",
-             "get_owner_name", "get_used_token", "get_temperature", "configure_immerse", "set_immerse"]
+             "get_owner_name", "get_used_token", "get_temperature", "configure_immerse", "set_immerse", "quit_immerse"]
 
 
 def get_request_type(server: socket.socket) -> str:
@@ -255,6 +263,8 @@ def protocol(server: socket.socket, addr: str):
         type_get_temperature(server, index)
     elif req == "set_immerse":
         type_set_immerse(server, user)
+    elif req == "quit_immerse":
+        type_quit_immerse(server, user)
 
     log(addr, "request completed, socket closed")
     server.close()
