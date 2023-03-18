@@ -6,6 +6,7 @@ import net
 import console
 import config
 import json
+import immerse
 from typing import List
 
 AI_list: List[AI.AI] = []   # 或许应该加上本地文件备份功能
@@ -40,6 +41,9 @@ def save_AI():
         f = open(config.data_path + "/" + i.user + ".ai", "w", encoding=config.coding_format)
         f.write(data_str)
         f.close()
+    f = open(config.data_path + "/immerse.json", "w", encoding=config.coding_format)
+    f.write(json.dumps(immerse.immerse))
+    f.close()
 
 
 def read_AI():
@@ -57,6 +61,10 @@ def read_AI():
         ai.used_tokens = data["used_tokens"]
         ai.temperature = data["temperature"]
         AI_list.append(ai)
+    if os.path.exists(config.data_path + "/immerse.json"):
+        f = open(config.data_path + "/immerse.json", "r", encoding=config.coding_format)
+        immerse.immerse = json.loads(f.read())
+        f.close()
 
 
 # 初始化服务端

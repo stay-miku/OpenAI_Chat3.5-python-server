@@ -1,5 +1,7 @@
 import config
 import _thread
+
+import immerse
 import system
 import socket
 
@@ -155,10 +157,25 @@ def type_get_temperature(server: socket.socket, index: int):   # ok
     send_string(server, str(system.AI_list[index].get_temperature()))
 
 
+def type_configure_immerse(server: socket.socket):
+    length = len(immerse.immerse)
+    send_int(server, length)
+    for i in immerse.immerse:
+        send_string(server, i["user"])
+        send_string(server, i["target"])
+        send_string(server, i["group"])
+
+
+def type_set_immerse(server: socket.socket, user: str):
+    target = get_string(server)
+    group = get_string(server)
+    immerse.set_immerse(user, target, group)
+
+
 # 19个类别,打字都打麻了
 type_name = ["create", "clear", "set_prompt", "set_default_prompt", "set_temperature", "get_prompt", "listen",
              "revoke", "speak", "chat", "set_speak", "set_chat", "re_chat", "set_name", "get_name", "set_owner_name",
-             "get_owner_name", "get_used_token", "get_temperature"]
+             "get_owner_name", "get_used_token", "get_temperature", "configure_immerse", "set_immerse"]
 
 
 def get_request_type(server: socket.socket) -> str:
@@ -181,16 +198,23 @@ def protocol(server: socket.socket, addr: str):
         server.close()
     log(addr, "request type: " + req)
 
-    user = get_string(server)
-    log(addr, "user: " + user)
-    index = system.get_AI_index(user)
-    if req != "create" and index == -1:
-        system.add_AI(user, config.default_neko_name, "")
+    # 让IDE闭嘴
+    user = "immerse"
+    index = 0
+
+    if req != "configure_immerse":
+        user = get_string(server)
+        log(addr, "user: " + user)
         index = system.get_AI_index(user)
-        log(addr, "automatically create neko for " + user)
+        if req != "create" and index == -1:
+            system.add_AI(user, config.default_neko_name, "")
+            index = system.get_AI_index(user)
+            log(addr, "automatically create neko for " + user)
 
     # 调用相应处理函数                         为啥不记得switch呢! 原来3.10才有switch啊,那没事了 那我为什么不把它独立成一个函数!
-    if req == "create":
+    if req == "configure_immerse":
+        type_configure_immerse(server)
+    elif req == "create":
         type_create(server, user)
     elif req == "clear":
         type_clear(server, index)
@@ -228,6 +252,8 @@ def protocol(server: socket.socket, addr: str):
         type_get_used_token(server, index)
     elif req == "get_temperature":
         type_get_temperature(server, index)
+    elif req == "set_immerse":
+        type_set_immerse(server, user)
 
     log(addr, "request completed, socket closed")
     server.close()
