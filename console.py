@@ -1,8 +1,11 @@
+import time
+
 import system
 
 
 # 命令行功能
 def start_console():
+    time.sleep(0.1)
     while True:
         comm = input(">").split(" ")
         if comm[0] == "stop":

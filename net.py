@@ -50,8 +50,7 @@ def connect_hello(server: socket.socket) -> bool:
 # 让可以被get的参数的内容不允许为false
 # 给了最大限度的自定义权就不需要delete功能了
 
-def type_create(server: socket.socket):  # ok
-    user = get_string(server)
+def type_create(server: socket.socket, user: str):  # ok
     name = get_string(server)
     owner_name = get_string(server)
     if system.add_AI(user, name, owner_name):
@@ -60,191 +59,100 @@ def type_create(server: socket.socket):  # ok
         send_false(server)
 
 
-def type_clear(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].clear()
-        send_true(server)
+def type_clear(server: socket.socket, index: int):   # ok
+    system.AI_list[index].clear()
+    send_true(server)
 
 
-def type_set_prompt(server: socket.socket):   # ok
-    user = get_string(server)
+def type_set_prompt(server: socket.socket, index: int):   # ok
     prompt = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_prompt(prompt)
-        send_true(server)
+    system.AI_list[index].set_prompt(prompt)
+    send_true(server)
 
 
-def type_set_default_prompt(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_default_prompt()
-        send_true(server)
+def type_set_default_prompt(server: socket.socket, index: int):   # ok
+    system.AI_list[index].set_default_prompt()
+    send_true(server)
 
 
-def type_set_temperature(server: socket.socket):   # ok
-    user = get_string(server)
+def type_set_temperature(server: socket.socket, index: int):   # ok
     temperature = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_temperature(float(temperature))
-        send_true(server)
+    system.AI_list[index].set_temperature(float(temperature))
+    send_true(server)
 
 
-def type_get_prompt(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, system.AI_list[index].get_prompt())
+def type_get_prompt(server: socket.socket, index: int):   # ok
+    send_string(server, system.AI_list[index].get_prompt())
 
 
-def type_listen(server: socket.socket):   # ok
-    user = get_string(server)
+def type_listen(server: socket.socket, index: int):   # ok
     question = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
+    system.AI_list[index].listen(question)
+    send_true(server)
+
+
+def type_revoke(server: socket.socket, index: int):   # ok
+    r = system.AI_list[index].revoke()
+    if r == {}:
+        send_string(server, "empty")    # 注意判断
+        send_string(server, "empty")
     else:
-        system.AI_list[index].listen(question)
-        send_true(server)
+        send_string(server, r["role"])
+        send_string(server, r["content"])
 
 
-def type_revoke(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-        send_false(server)
-    else:
-        r = system.AI_list[index].revoke()
-        if r == {}:
-            send_string(server, "empty")    # 注意判断
-            send_string(server, "empty")
-        else:
-            send_string(server, r["role"])
-            send_string(server, r["content"])
+def type_speak(server: socket.socket, index: int):   # ok
+    send_string(server, system.AI_list[index].speak())  # 需判断error
 
 
-def type_speak(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, system.AI_list[index].speak())  # 需判断error
-
-
-def type_chat(server: socket.socket):  # 这里就不复用代码了(毕竟流程会多一步返回)    # ok
-    user = get_string(server)
+def type_chat(server: socket.socket, index: int):  # 这里就不复用代码了(毕竟流程会多一步返回)    # ok
     question = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, system.AI_list[index].chat(question))  # 需判断error
+    send_string(server, system.AI_list[index].chat(question))  # 需判断error
 
 
-def type_set_speak(server: socket.socket):   # ok
-    user = get_string(server)
+def type_set_speak(server: socket.socket, index: int):   # ok
     answer = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_speak(answer)
-        send_true(server)
+    system.AI_list[index].set_speak(answer)
+    send_true(server)
 
 
-def type_set_chat(server: socket.socket):   # ok
-    user = get_string(server)
+def type_set_chat(server: socket.socket, index: int):   # ok
     question = get_string(server)
     answer = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_chat(question, answer)
-        send_true(server)
+    system.AI_list[index].set_chat(question, answer)
+    send_true(server)
 
 
-def type_re_chat(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, system.AI_list[index].re_chat())
+def type_re_chat(server: socket.socket, index: int):   # ok
+    send_string(server, system.AI_list[index].re_chat())
 
 
-def type_get_name(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, system.AI_list[index].get_name())
+def type_get_name(server: socket.socket, index: int):   # ok
+    send_string(server, system.AI_list[index].get_name())
 
 
-def type_set_name(server: socket.socket):   # ok
-    user = get_string(server)
+def type_set_name(server: socket.socket, index: int):   # ok
     name = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_name(name)
-        send_true(server)
+    system.AI_list[index].set_name(name)
+    send_true(server)
 
 
-def type_get_owner_name(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, system.AI_list[index].get_owner_name())
+def type_get_owner_name(server: socket.socket, index: int):   # ok
+    send_string(server, system.AI_list[index].get_owner_name())
 
 
-def type_set_owner_name(server: socket.socket):   # ok
-    user = get_string(server)
+def type_set_owner_name(server: socket.socket, index: int):   # ok
     owner_name = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        system.AI_list[index].set_owner_name(owner_name)
-        send_true(server)
+    system.AI_list[index].set_owner_name(owner_name)
+    send_true(server)
 
 
-def type_get_used_token(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, str(system.AI_list[index].get_used_token()))
+def type_get_used_token(server: socket.socket, index: int):   # ok
+    send_string(server, str(system.AI_list[index].get_used_token()))
 
 
-def type_get_temperature(server: socket.socket):   # ok
-    user = get_string(server)
-    index = system.get_AI_index(user)
-    if index == -1:
-        send_false(server)
-    else:
-        send_string(server, str(system.AI_list[index].get_temperature()))
+def type_get_temperature(server: socket.socket, index: int):   # ok
+    send_string(server, str(system.AI_list[index].get_temperature()))
 
 
 # 19个类别,打字都打麻了
@@ -273,45 +181,53 @@ def protocol(server: socket.socket, addr: str):
         server.close()
     log(addr, "request type: " + req)
 
+    user = get_string(server)
+    log(addr, "user: " + user)
+    index = system.get_AI_index(user)
+    if req != "create" and index == -1:
+        system.add_AI(user, config.default_neko_name, "")
+        index = system.get_AI_index(user)
+        log(addr, "automatically create neko for " + user)
+
     # 调用相应处理函数                         为啥不记得switch呢! 原来3.10才有switch啊,那没事了 那我为什么不把它独立成一个函数!
     if req == "create":
-        type_create(server)
+        type_create(server, user)
     elif req == "clear":
-        type_clear(server)
+        type_clear(server, index)
     elif req == "set_prompt":
-        type_set_prompt(server)
+        type_set_prompt(server, index)
     elif req == "set_default_prompt":
-        type_set_default_prompt(server)
+        type_set_default_prompt(server, index)
     elif req == "set_temperature":
-        type_set_temperature(server)
+        type_set_temperature(server, index)
     elif req == "get_prompt":
-        type_get_prompt(server)
+        type_get_prompt(server, index)
     elif req == "listen":
-        type_listen(server)
+        type_listen(server, index)
     elif req == "revoke":
-        type_revoke(server)
+        type_revoke(server, index)
     elif req == "speak":
-        type_speak(server)
+        type_speak(server, index)
     elif req == "chat":
-        type_chat(server)
+        type_chat(server, index)
     elif req == "set_speak":
-        type_set_speak(server)
+        type_set_speak(server, index)
     elif req == "set_chat":
-        type_set_chat(server)
+        type_set_chat(server, index)
     elif req == "re_chat":
-        type_re_chat(server)
+        type_re_chat(server, index)
     elif req == "get_name":
-        type_get_name(server)
+        type_get_name(server, index)
     elif req == "set_name":
-        type_set_name(server)
+        type_set_name(server, index)
     elif req == "get_owner_name":
-        type_get_owner_name(server)
+        type_get_owner_name(server, index)
     elif req == "set_owner_name":
-        type_set_owner_name(server)
+        type_set_owner_name(server, index)
     elif req == "get_used_token":
-        type_get_used_token(server)
+        type_get_used_token(server, index)
     elif req == "get_temperature":
-        type_get_temperature(server)
+        type_get_temperature(server, index)
 
     log(addr, "request completed, socket closed")
     server.close()
