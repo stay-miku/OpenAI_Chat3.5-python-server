@@ -139,11 +139,11 @@ class AI:
             resp = openai.ChatCompletion.create(model=select_model, messages=self.messages,
                                                 temperature=self.temperature)
         except openai.error.RateLimitError:     # 需要单独判断是否触发api速度限制
-            self.operable = True
+            self.operable = False
             return "error: limit error"
         except Exception as e:
             print(e)
-            self.operable = True
+            self.operable = False
             return "error: network error"
         message = resp["choices"][0]["message"]["content"]
         self.used_tokens = self.used_tokens + resp["usage"]["total_tokens"]
