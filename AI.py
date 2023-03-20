@@ -137,7 +137,7 @@ class AI:
         self.operable = True
         try:
             resp = openai.ChatCompletion.create(model=select_model, messages=self.messages,
-                                                temperature=self.temperature)
+                                                temperature=self.temperature, timeout=config.api_time_out)
         except openai.error.RateLimitError as e:     # 需要单独判断是否触发api速度限制
             print(e)
             self.operable = False

@@ -15,6 +15,9 @@ default_temperature = 1.0
 # 最多储存的message数量,若不做限制会导致token消耗极快
 max_message_length = 30
 
+# api连接超时时间,太短会导致无法回复过长的内容,太长在api出问题时会等待更长时间
+api_time_out = 60
+
 
 # 服务器配置
 
