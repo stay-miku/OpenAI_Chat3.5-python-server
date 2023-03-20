@@ -181,10 +181,24 @@ def type_quit_immerse(server: socket.socket, user: str):
         send_false(server)
 
 
+def type_is_accept_new_friend(server: socket, user: str):
+    if config.auto_accept_new_friend:
+        if user in config.new_friend_black_list:
+            send_false(server)
+        else:
+            send_true(server)
+    else:
+        if user in config.new_friend_white_list:
+            send_true(server)
+        else:
+            send_false(server)
+
+
 # 操作类别
 type_name = ["create", "clear", "set_prompt", "set_default_prompt", "set_temperature", "get_prompt", "listen",
              "revoke", "speak", "chat", "set_speak", "set_chat", "re_chat", "set_name", "get_name", "set_owner_name",
-             "get_owner_name", "get_used_token", "get_temperature", "configure_immerse", "set_immerse", "quit_immerse"]
+             "get_owner_name", "get_used_token", "get_temperature", "configure_immerse", "set_immerse", "quit_immerse",
+             "is_accept_new_friend"]
 
 
 def get_request_type(server: socket.socket) -> str:
@@ -265,6 +279,8 @@ def protocol(server: socket.socket, addr: str):
         type_set_immerse(server, user)
     elif req == "quit_immerse":
         type_quit_immerse(server, user)
+    elif req == "is_accept_new_friend":
+        type_is_accept_new_friend(server, user)
 
     log(addr, "request completed, socket closed")
     server.close()

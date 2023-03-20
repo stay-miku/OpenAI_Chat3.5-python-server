@@ -8,12 +8,28 @@ except ModuleNotFoundError:
     os.system("pip install openai")     # 自动配置库
     import openai
 
+try:
+    import func_timeout
+    from func_timeout import func_set_timeout
+except ModuleNotFoundError:
+    os.system("pip install func_timeout")
+    import func_timeout
+    from func_timeout import func_set_timeout
+
 import config
 
-# 基本变量的初始化
+# 基本变量的初始化   啥时候把这写成个初始化函数
 openai.api_key = config.api_key
 select_model = config.select_model
 default_temperature = config.default_temperature
+max_messages_length = config.max_message_length
+api_timeout = config.api_timeout
+
+
+# 让set_timeout生效
+@func_set_timeout(api_timeout)
+def chat_completion_timeout(model: str, messages: List, temperature: float):
+    return openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
 
 
 class AI:
@@ -74,7 +90,7 @@ class AI:
     # 清除超过长度限制的对话
     def clear_extre_message(self):
         while True:
-            if len(self.messages) - 1 <= config.max_message_length:
+            if len(self.messages) - 1 <= max_messages_length:
                 break
             else:
                 self.messages.pop(1)
@@ -136,12 +152,15 @@ class AI:
         self.pre_operable()
         self.operable = True
         try:
-            resp = openai.ChatCompletion.create(model=select_model, messages=self.messages,
-                                                temperature=self.temperature, timeout=config.api_time_out)  # timeout好像没效果
+            resp = chat_completion_timeout(select_model, self.messages, self.temperature)
         except openai.error.RateLimitError as e:     # 需要单独判断是否触发api速度限制
             print(e)
             self.operable = False
             return "error: limit error"
+        except func_timeout.FunctionTimedOut as e:
+            print(e)
+            self.operable = False
+            return "error: timeout error"
         except Exception as e:
             print(e)
             self.operable = False
