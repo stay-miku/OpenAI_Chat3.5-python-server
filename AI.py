@@ -24,6 +24,8 @@ select_model = config.select_model
 default_temperature = config.default_temperature
 max_messages_length = config.max_message_length
 api_timeout = config.api_timeout
+if config.proxy_enable:
+    openai.proxy = "http://" + config.proxy_server + ":" + str(config.proxy_port)
 
 
 # 让set_timeout生效
